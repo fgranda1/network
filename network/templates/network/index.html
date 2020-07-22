@@ -1,0 +1,56 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<h1>All Posts</h1>
+
+{% if user.is_authenticated %}
+<div class="card mt-2 mb-2">
+  <div class="card-body">
+    <form action="{% url 'index' %}" method="POST">
+      <div class="hidden">{% csrf_token %}</div>
+      <div class="form-group">
+        <textarea class="form-control" name='post_text' rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary mb-2">Add post</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+
+{% for post in page_obj %}
+
+<div class="card mt-2 mb-2">
+  <div class="card-body">
+    <h4 class="pb-0 mb-0 text-capitalize"><a href="{% url 'user' post.author %}">{{post.author}}</a></h4>
+    <small class="card-subtitle mb-2 text-muted ">On {{post.timest}}</small>
+    <p class="card-text">{{post.post}}</p>
+    {% if user.is_authenticated %}
+    <a href="" class="likebutton" data-postid ='{{post.id}}' data-liker='{{user}}' ><i class="far fa-heart"></i></a><span class="likesCount text-muted">N</span>
+    {% else %}
+    <a href="{% url 'login' %}" class="likebutton" data-postid ='{{post.id}}'  ><i class="far fa-heart"></i></a><span class="likesCount text-muted">N</span>
+    {% endif %}
+  </div>
+</div>
+
+{% endfor %}
+
+<div class="pagination">
+<span class="step-links">
+    {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+    {% endif %}
+
+    <span class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    </span>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+    {% endif %}
+</span>
+</div>
+
+{% endblock %}
