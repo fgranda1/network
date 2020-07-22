@@ -32,8 +32,8 @@ def liking(request, post_id):
             author = User.objects.get(username=request.user)
             # getting Like object and filtering by author and pst
             like = Like.objects.get(liker=author, post=pst)
-            #removing link from post
-            like.post.remove(pst)
+            #removing like 
+            like.delete()
             return JsonResponse(status=200, data={'Dislike':'ok'})
 
 
