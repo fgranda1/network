@@ -5,3 +5,4 @@ from . models import *
 
 admin.site.register(Npost)
 admin.site.register(Like)
+admin.site.register(Follow)

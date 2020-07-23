@@ -19,3 +19,9 @@ class Like(models.Model):
     post = models.ManyToManyField(Npost, blank=True, related_name='liker')
     def __str__(self):
         return f"Liker: {self.liker}"
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE)
+    follow_to = models.ManyToManyField(User, blank=True, related_name='usern')
+    def __str__(self):
+        return f"Follower: {self.follow_to}"

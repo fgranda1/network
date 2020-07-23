@@ -8,6 +8,17 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
 
+def get_follows(request, user_name):
+    follow_list = []
+    user_obj = User.objects.get(username=user_name)
+    follows = Follow.objects.filter(follow_to=user_obj)
+    for follow in follows:
+        followers = str(follow.follower)
+        follow_list.append(followers)
+    follow_count = len(follow_list)
+    return JsonResponse(status=200, data={'follows':{'count':follow_count}, 'followers':follow_list})
+
+
 def liking(request, post_id):
     if request.method == 'POST':
         data = json.loads(request.body.decode("utf-8"))
@@ -32,7 +43,7 @@ def liking(request, post_id):
             author = User.objects.get(username=request.user)
             # getting Like object and filtering by author and pst
             like = Like.objects.get(liker=author, post=pst)
-            #removing like 
+            #removing like
             like.delete()
             return JsonResponse(status=200, data={'Dislike':'ok'})
 
@@ -43,10 +54,10 @@ def get_likes(request, post_id):
     likes = Like.objects.filter(post=post)
     likes_count = len(likes)
     for like in likes:
-        test = str(like.liker)
-        likers.append(test)
+        liker = str(like.liker)
+        likers.append(liker)
     return JsonResponse(status=200, data={'likes':{'count':likes_count}, 'likers':likers})
-    print(test)
+
 
 
 
