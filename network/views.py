@@ -9,25 +9,31 @@ from django.http import JsonResponse
 import json
 
 def get_following(request, user_name):
-    following_list = []
-    user_obj = User.objects.get(username=user_name)
-    follows = Follow.objects.filter(follower=user_obj)
-    for i in follows:
-        for e in i.follow_to.all():
-            test = str(e.username)
-            following_list.append(test)
-    following_count = len(following_list)
-    return JsonResponse(status=200, data={'following':{'count':following_count}, 'following_to':following_list})
+    try:
+        following_list = []
+        user_obj = User.objects.get(username=user_name)
+        follows = Follow.objects.filter(follower=user_obj)
+        for i in follows:
+            for e in i.follow_to.all():
+                test = str(e.username)
+                following_list.append(test)
+        following_count = len(following_list)
+        return JsonResponse(status=200, data={'following':{'count':following_count}, 'following_to':following_list})
+    except:
+        return JsonResponse(status=404, data={'Message': 'User does not exist'})
 
 def get_follows(request, user_name):
-    follow_list = []
-    user_obj = User.objects.get(username=user_name)
-    follows = Follow.objects.filter(follow_to=user_obj)
-    for follow in follows:
-        followers = str(follow.follower)
-        follow_list.append(followers)
-    follow_count = len(follow_list)
-    return JsonResponse(status=200, data={'follows':{'count':follow_count}, 'followers':follow_list})
+    try:
+        follow_list = []
+        user_obj = User.objects.get(username=user_name)
+        follows = Follow.objects.filter(follow_to=user_obj)
+        for follow in follows:
+            followers = str(follow.follower)
+            follow_list.append(followers)
+        follow_count = len(follow_list)
+        return JsonResponse(status=200, data={'follows':{'count':follow_count}, 'followers':follow_list})
+    except:
+        return JsonResponse(status=404, data={'Message': 'User does not exist'})
 
 
 def liking(request, post_id):
@@ -47,7 +53,7 @@ def liking(request, post_id):
             like.post.add(pst)
             like.save()
             return JsonResponse(status=200, data={'Like':'ok'})
-        else:
+        elif tag == 'dislike':
             #getting the post object filtering by post_id
             pst = Npost.objects.get(id=post_id)
             #getting author Object filtering by username
@@ -60,15 +66,18 @@ def liking(request, post_id):
 
 
 def get_likes(request, post_id):
-    likers = []
-    post = Npost.objects.get(id=post_id)
-    likes = Like.objects.filter(post=post)
+    try:
+        likers = []
+        post = Npost.objects.get(id=post_id)
+        likes = Like.objects.filter(post=post)
 
-    for like in likes:
-        liker = str(like.liker)
-        likers.append(liker)
-    likes_count = len(likers)
-    return JsonResponse(status=200, data={'likes':{'count':likes_count}, 'likers':likers})
+        for like in likes:
+            liker = str(like.liker)
+            likers.append(liker)
+        likes_count = len(likers)
+        return JsonResponse(status=200, data={'likes':{'count':likes_count}, 'likers':likers})
+    except:
+        return JsonResponse(status=404, data={'Message': 'Post_id does not exist'})
 
 
 
