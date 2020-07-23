@@ -5,9 +5,140 @@
 <div class="card mt-2 mb-2">
   <div class="card-body">
     <h1 class="pb-0 mb-0 text-capitalize">{{profile}}</h4>
-      <span class="text-muted">Following </span> <strong>52</strong> | <span class="text-muted">Followers</span> <strong>100</strong>
+      <span class="text-muted">Following </span> <strong class="following"></strong> | <span class="text-muted">Followers</span> <strong class="followers"></strong>
+      <br>
+      {% if user.is_authenticated %}
+      {% if user != profile %}
+      <button class="btn btn-outline-primary followBtn" >Follow</button>
+      {% endif %}
+      {% endif %}
+
   </div>
 </div>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+
+
+    // Fetching Following
+
+    function getFullInfo(){
+
+
+
+      // Fetching Following
+      fetch("..{% url 'following' profile %}").then(response => {
+
+        if (response.status != 200) {
+          console.log('Looks like there was a problem. Status Code: ' + response.status);
+          return;
+        }
+        response.json().then(data => {
+          document.querySelector('.following').innerHTML = data['following']['count']
+        });
+
+      });
+
+      // getting follows
+
+      fetch("..{% url 'follow' profile %}").then(response => {
+
+        if (response.status != 200) {
+          console.log('Looks like there was a problem. Status Code: ' + response.status);
+          return;
+        }
+        response.json().then(data => {
+          document.querySelector('.followers').innerHTML = data['follows']['count'];
+          let already = JSON.stringify(data['followers']).indexOf('{{user}}');
+          ifNotOrYes(already);
+
+        });
+
+      });
+
+      document.querySelector('.followBtn').disabled = false;
+
+    }
+    getFullInfo();
+
+    //
+    function ifNotOrYes(value){
+
+      if (value == -1){
+        document.querySelector('.followBtn').classList.remove('btn-primary');
+        document.querySelector('.followBtn').classList.add('btn-outline-primary');
+        document.querySelector('.followBtn').innerHTML = 'Follow';
+
+        document.querySelector('.followBtn').onclick = () => {
+          document.querySelector('.followBtn').disabled = true;
+
+          CSRFToken = document.querySelector('.hidden').firstChild.value;
+          data = {'action': 'follow'}
+          fetch(`..{% url 'push_follow' profile  %}`, {
+           method: "POST",
+           headers: {
+             'X-CSRFToken':CSRFToken,
+             "X-Requested-With": "XMLHttpRequest"
+           },
+           body: JSON.stringify(data),
+         });
+
+
+          setTimeout(getFullInfo, 500);
+          return false;
+
+
+
+        }
+
+      //
+    } else {
+      document.querySelector('.followBtn').classList.add('btn-primary');
+      document.querySelector('.followBtn').classList.remove('btn-outline-primary');
+      document.querySelector('.followBtn').innerHTML = 'Unfollow';
+
+      document.querySelector('.followBtn').onclick = () => {
+        document.querySelector('.followBtn').disabled = true;
+
+        CSRFToken = document.querySelector('.hidden').firstChild.value;
+        data = {'action': 'unfollow'}
+        fetch(`..{% url 'push_follow' profile  %}`, {
+         method: "POST",
+         headers: {
+           'X-CSRFToken':CSRFToken,
+           "X-Requested-With": "XMLHttpRequest"
+         },
+         body: JSON.stringify(data),
+       });
+
+
+        setTimeout(getFullInfo, 500);
+        return false;
+
+
+
+      }
+
+
+
+    }
+
+      //
+
+    }
+
+
+
+
+
+  })
+
+
+
+
+</script>
 
 {% if user.is_authenticated %}
 {% if user == profile %}

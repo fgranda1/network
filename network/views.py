@@ -8,6 +8,34 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
 
+def push_follow(request, user_name):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode("utf-8"))
+        tag = data['action']
+        print(tag)
+        if tag == 'follow':
+            #getting the user to follow to
+            user_to = User.objects.get(username=user_name)
+            #getting the user to follow from
+            user_from = User.objects.get(username=request.user)
+            #creating follow and saving it
+            follow = Follow(follower=user_from)
+            follow.save()
+            #adding follow to user and saving it
+            follow.follow_to.add(user_to)
+            follow.save()
+            return JsonResponse(status=200, data={'follow':'ok'})
+        elif tag == 'unfollow':
+            #getting the user_to object filtering by user_name
+            user_to = User.objects.get(username=user_name)
+            #getting user_from Object filtering by user_name
+            user_from = User.objects.get(username=request.user)
+            # getting Follow object and filtering by user_from and user_to
+            follow = Follow.objects.get(follower=user_from, follow_to=user_to)
+            #removing Follow
+            follow.delete()
+            return JsonResponse(status=200, data={'unfollow':'ok'})
+
 def get_following(request, user_name):
     try:
         following_list = []
