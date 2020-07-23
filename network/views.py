@@ -8,6 +8,17 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
 
+def get_following(request, user_name):
+    following_list = []
+    user_obj = User.objects.get(username=user_name)
+    follows = Follow.objects.filter(follower=user_obj)
+    for i in follows:
+        for e in i.follow_to.all():
+            test = str(e.username)
+            following_list.append(test)
+    following_count = len(following_list)
+    return JsonResponse(status=200, data={'following':{'count':following_count}, 'following_to':following_list})
+
 def get_follows(request, user_name):
     follow_list = []
     user_obj = User.objects.get(username=user_name)
@@ -52,10 +63,11 @@ def get_likes(request, post_id):
     likers = []
     post = Npost.objects.get(id=post_id)
     likes = Like.objects.filter(post=post)
-    likes_count = len(likes)
+
     for like in likes:
         liker = str(like.liker)
         likers.append(liker)
+    likes_count = len(likers)
     return JsonResponse(status=200, data={'likes':{'count':likes_count}, 'likers':likers})
 
 

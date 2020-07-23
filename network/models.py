@@ -22,6 +22,4 @@ class Like(models.Model):
 
 class Follow(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE)
-    follow_to = models.ManyToManyField(User, blank=True, related_name='usern')
-    def __str__(self):
-        return f"Follower: {self.follow_to}"
+    follow_to = models.ManyToManyField(User, blank=True, related_name='follow_to')
