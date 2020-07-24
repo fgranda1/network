@@ -8,6 +8,41 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
 
+
+
+def following(request, user_name ):
+    if request.user.is_authenticated:
+        # getting follows
+        following_list = []
+        user_obj = User.objects.get(username=user_name)
+        follows = Follow.objects.filter(follower=user_obj)
+        for i in follows:
+            for e in i.follow_to.all():
+                fll = str(e.username)
+                following_list.append(fll)
+        following_count = len(following_list)
+
+
+        #creating User objects based in following_list
+
+        usr_to_show = []
+
+        for o in following_list:
+            usr_obj = User.objects.get(username=o)
+            usr_to_show.append(usr_obj)
+
+        ## showing articles
+
+        post_list_byuser = Npost.objects.filter(author__in=usr_to_show)
+        print(post_list_byuser)
+        paginator = Paginator(post_list_byuser, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'network/following.html', {'page_obj': page_obj, 'profile': user_obj})
+    else:
+        return HttpResponseRedirect(reverse('login'))
+
+
 def push_follow(request, user_name):
     if request.method == 'POST':
         data = json.loads(request.body.decode("utf-8"))
@@ -43,8 +78,8 @@ def get_following(request, user_name):
         follows = Follow.objects.filter(follower=user_obj)
         for i in follows:
             for e in i.follow_to.all():
-                test = str(e.username)
-                following_list.append(test)
+                fll = str(e.username)
+                following_list.append(fll)
         following_count = len(following_list)
         return JsonResponse(status=200, data={'following':{'count':following_count}, 'following_to':following_list})
     except:
@@ -106,9 +141,6 @@ def get_likes(request, post_id):
         return JsonResponse(status=200, data={'likes':{'count':likes_count}, 'likers':likers})
     except:
         return JsonResponse(status=404, data={'Message': 'Post_id does not exist'})
-
-
-
 
 def user_profile(request, user):
     author = User.objects.get(username=user)
