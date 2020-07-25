@@ -8,7 +8,17 @@ from django.core.paginator import Paginator
 from django.http import JsonResponse
 import json
 
-
+def update_post(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            post_id = data['postid']
+            post_text = data['message']
+            Npost.objects.filter(id=post_id).update(post=post_text)
+            return JsonResponse(status=200, data={'update':'ok'})
+        except:
+            return JsonResponse(status=404, data={'Message':'post_id does not exist'})
+    return HttpResponseRedirect(reverse, 'index')
 
 def following(request, user_name ):
     if request.user.is_authenticated:
@@ -47,7 +57,7 @@ def push_follow(request, user_name):
     if request.method == 'POST':
         data = json.loads(request.body.decode("utf-8"))
         tag = data['action']
-        print(tag)
+
         if tag == 'follow':
             #getting the user to follow to
             user_to = User.objects.get(username=user_name)
