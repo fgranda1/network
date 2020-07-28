@@ -44,6 +44,7 @@ def following(request, user_name ):
             usr_obj = User.objects.get(username=o)
             usr_to_show.append(usr_obj)
 
+
         ## showing articles
 
         post_list_byuser = Npost.objects.filter(author__in=usr_to_show).order_by('-id')
