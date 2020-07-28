@@ -164,7 +164,7 @@
 
 {% for post in page_obj %}
 
-<div class="card mt-2 mb-2">
+<div class="card mt-2 mb-2 post" data-postid='{{post.id}}' data-postauthor='{{post.author}}' data-user='{{user}}' >
   <div class="card-body">
     <h4 class="pb-0 mb-0 text-capitalize"><a href="{% url 'user' post.author %}">{{post.author}}</a></h4>
     <small class="card-subtitle mb-2 text-muted ">On {{post.timest}}</small>
@@ -174,6 +174,9 @@
     {% else %}
     <a href="{% url 'login' %}" class="likebutton" data-postid ='{{post.id}}'  ><i class="far fa-heart"></i></a><span class="likesCount text-muted">N</span>
     {% endif %}
+  </div>
+  <div class="card-footer text-muted text-right edit">
+
   </div>
 </div>
 
